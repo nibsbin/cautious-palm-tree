@@ -4,7 +4,7 @@ This document is for brainstorming and discussion. Not final design doc.
 
 ## Overview
 
-This app is a cute puppy sim with chaotic humor. The vibe should stay adorable at all times, while the writing can derail into dark, raunchy, out-of-pocket jokes.
+This app is a cute puppy sim with chaotic humor. The vibe should stay adorable at all times, while the writing can derail into dark, out-of-pocket jokes.
 
 This is an MVP focused on a single sit-down session. Target playtime ranges from a quick 60-second check-in to up to about an hour of messing around.
 
