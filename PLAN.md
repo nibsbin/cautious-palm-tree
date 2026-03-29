@@ -1,124 +1,107 @@
-# Puppy Simulator — Implementation Plan
+# Puppy Simulator — PLAN.md
 
-This plan implements the intent of [BRAINSTORM.md](./BRAINSTORM.md). It fixes **order of work** and **scope boundaries**; tunable numbers and copy stay flexible.
+Implementation plan derived from [BRAINSTORM.md](./BRAINSTORM.md), tuned for a small MVP that is shippable quickly and easy to iterate on.
 
-## Goals
+## 1) Product Intent (MVP)
 
-- Ship a **single-session**, **client-only** sandbox: pet → love reacts → money ticks → spend → repeat.
-- **Prove the loop** with minimal UI and one clear economy formula; polish and balance later.
-- **No** win/lose, **no** deep progression arc, **no** mobile-first layout for MVP.
+- Build a tiny, cute, desktop-oriented puppy sandbox.
+- Preserve the loop: **interact → love changes → money ticks → buy upgrades → repeat**.
+- Keep systems intentionally simple so tuning can happen later.
 
-## Tech Stack (fixed)
+## 2) Guardrails
 
-| Layer | Choice |
-|--------|--------|
-| Framework | SvelteKit |
-| Styling | Tailwind CSS v4 |
-| Components | Skeleton UI |
-| Copy / data | JSON (imported or loaded from `src`) |
-| Assets | Static files under `static/` (checked in) |
-| Persistence | `localStorage` flat blob; no migration story for MVP |
+- Single-page SvelteKit experience.
+- Client-side simulation only.
+- `localStorage` persistence only (flat save blob, reset on schema mismatch).
+- JSON-driven copy/content.
+- No audio, no server backend, no mobile layout target, no win/lose conditions.
 
-## Architecture Summary
+## 3) Build Order
 
-- **One primary route** (e.g. `/`) — SPA feel; all simulation on the **client**.
-- **Game state** in a small module (Svelte stores or a single store + derived values): love, money, owned upgrades, optional last-tick time.
-- **Tick loop** in one place (`setInterval` or `requestAnimationFrame` with fixed step): apply decay, passive income, auto-petter effects, then persist if needed.
-- **Economy** in one module: constants + `moneyPerTick`-style helpers so tuning does not scatter across components.
+### Phase A — App shell and layout
 
-## Phased Delivery
+1. Bootstrap SvelteKit app with Tailwind v4 and Skeleton.
+2. Create two-column layout:
+   - Left/main: puppy stage + interaction buttons.
+   - Right pane: love meter, money counter, shop list.
+3. Add placeholder puppy asset in `static/`.
 
-### Phase 0 — Project shell
+**Done when:** App starts and layout reflects the intended desktop composition.
 
-- Initialize SvelteKit; add Tailwind v4 and Skeleton per their current docs.
-- **Layout**: two columns — **main stage** (puppy) + **right pane** (love, money, shop). No separate HUD strip.
-- **Desktop-only** assumption: comfortable min-width; no requirement for narrow viewports.
-- Stub placeholder puppy image in `static/` until real art lands.
+### Phase B — Core state + tick loop
 
-**Exit:** App runs, layout matches two-column intent, empty right pane ready.
+1. Introduce game state (`love`, `money`, `ownedItems`, optional `lastTickAt`).
+2. Implement one centralized tick loop that:
+   - applies love decay,
+   - computes passive money,
+   - applies auto-petter effects,
+   - triggers debounced persistence.
+3. Keep all economy constants in a single module.
 
-### Phase 1 — Content plumbing
+**Done when:** Without shop logic, petting changes love and money grows over time.
 
-- Add JSON for: shop catalog (id, label, price, effect type), optional mood / flavor strings.
-- Wire copy into UI via imports or a tiny loader — **no** hardcoded long strings in layout components.
+### Phase C — Interactions and feedback
 
-**Exit:** Changing JSON updates labels and shop rows without touching markup logic.
+1. Implement actions: `pet`, `feed`, `toy`.
+2. Keep effects intentionally simple and tunable (delta-based rules).
+3. Add visual mood feedback via CSS transitions tied to love bands.
 
-### Phase 2 — Core simulation (no shop yet)
+**Done when:** Actions feel distinct and puppy mood is visually legible.
 
-- Implement **love** (clamped numeric meter) and **primary interaction**: **pet** (click/tap target on puppy).
-- Add **slow love decay** over time (per BRAINSTORM: “can dip over time”; keep it gentle).
-- Implement **tick loop** and **money accrual** aligned with direction **Love × action → Money** (e.g. base rate × current love per tick, plus explicit bumps on pet if desired). Centralize multipliers in one place.
+### Phase D — Shop + progression
 
-**Exit:** Player can pet, see love change, see money rise in ticks; decay is noticeable but not punishing.
+1. Create JSON-backed shop catalog (`id`, `label`, `price`, `effectType`, `effectValue`).
+2. Render shop from data; disable purchase when funds are insufficient.
+3. Support:
+   - instant consumables (love/money boosts),
+   - passive auto-petters for tick-based scaling.
 
-### Phase 3 — Actions and feedback
+**Done when:** Spending money meaningfully accelerates the loop.
 
-- Add **feed** and **use toy** as additional interactions (minimal differentiation: different love/money deltas or cooldowns — keep rules dumb and tunable).
-- **Visual feedback** for mood/love: CSS transitions on the puppy container (scale, opacity, filter) driven by love bands or discrete states — no audio for MVP.
+### Phase E — Persistence + stabilization
 
-**Exit:** Multiple interaction types feel distinct enough to be fun; puppy readably reflects state.
+1. Save/load from `localStorage` with parse guards.
+2. On invalid or incompatible data, reset to defaults.
+3. Perform quick tuning pass for “good vibes / fun to play”.
 
-### Phase 4 — Shop and passive progression
+**Done when:** Refresh keeps progress and the loop remains stable for a 5–10 minute play session.
 
-- **Shop** in right pane: list from JSON, buttons disabled when broke.
-- **Treats / toys**: one-time or consumable effects (love bump, temporary multiplier) — simplest viable rules.
-- **Auto-petters**: passive effect each tick (e.g. +love per owned, or +money scaling with love). Prefer **one** clear passive rule for MVP.
+## 4) Suggested File Layout
 
-**Exit:** Full loop: earn → spend → feel stronger idle/play.
-
-### Phase 5 — Persistence
-
-- Serialize game state to `localStorage` on a debounced schedule or after material changes.
-- Load on startup; if parse fails or schema is wrong, **reset** (no migrations per BRAINSTORM).
-
-**Exit:** Refresh preserves progress within the same browser.
-
-### Phase 6 — Assets and pass
-
-- Replace stub with final puppy image(s) in `static/`; keep **transitions** as the main “animation.”
-- Light pass: readable typography, spacing, Skeleton components for buttons/cards only where they help.
-
-**Exit:** Matches “good vibes / fun to play” smoke test.
-
-## Suggested Repository Shape (non-prescriptive)
-
-```
+```txt
 src/
   lib/
     game/
-      state.ts          # stores + types
-      tick.ts           # loop + dt
-      economy.ts        # formulas + constants
-      persistence.ts    # localStorage read/write
+      state.ts
+      economy.ts
+      tick.ts
+      actions.ts
+      persistence.ts
     content/
       shop.json
-      strings.json      # or split by domain
+      strings.json
   routes/
-    +page.svelte        # main shell
-  ...
+    +page.svelte
 static/
-  puppy.png             # (or similar)
+  puppy.png
 ```
 
-Adjust names to taste; **keep simulation out of `+page.svelte`** so the page stays layout + wiring.
+Notes:
+- Keep simulation logic out of route components.
+- Keep constants/data out of UI markup.
 
-## Explicitly Out of Scope (MVP)
+## 5) Acceptance Checklist
 
-- Database or server-side game state
-- Save migrations and robust backward compatibility
-- Audio and sound effects
-- Accessibility hardening (deferred per BRAINSTORM)
-- Mobile / narrow layout targets
-- Win/lose conditions and narrative arcs
+- [ ] Core loop is playable end-to-end in one browser session.
+- [ ] Love meter can rise/fall and affects money generation.
+- [ ] Shop content is fully data-driven via JSON.
+- [ ] Economy tuning is centralized in one module.
+- [ ] Progress persists across refresh in the same browser.
+- [ ] MVP tone remains cute/chaotic and lightweight.
 
-## Success Check
+## 6) Non-Goals for MVP
 
-- [ ] BRAINSTORM core loop is playable in one sitting without crashes.
-- [ ] Copy and shop data are editable via JSON without refactoring components.
-- [ ] Economy tuning is mostly **one module** of constants.
-- [ ] BRAINSTORM success criteria: **good vibes**, **fun to play** (subjective — quick team playtest).
-
-## References
-
-- Product intent and tone: [BRAINSTORM.md](./BRAINSTORM.md)
+- Multiplayer or server saves
+- Data migrations and long-term save compatibility
+- Audio, advanced animation rigs, or narrative progression
+- Accessibility hardening and mobile optimization (deferred)
