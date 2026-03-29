@@ -8,6 +8,8 @@ This app is a cute puppy sim with chaotic humor. The vibe should stay adorable a
 
 This is an MVP focused on a single sit-down session. Target playtime ranges from a quick 60-second check-in to up to about an hour of messing around.
 
+**North Star (MVP):** Keep everything very simple. Prove the idea; tune numbers and polish later. No bells and whistles.
+
 ## Features
 
 - Pet the puppy (core interaction)
@@ -29,6 +31,8 @@ MVP scope rule: KISS. Focus on the core game loop only.
 - Repeat
 
 No deep progression arc for MVP. Keep it immediately fun.
+
+No win or lose state—sandbox only.
 
 ## Tech Stack
 
@@ -53,15 +57,11 @@ Single Page app.
 
 Accessibility is deferred for MVP.
 
-### Page layout (discussion)
+### Page layout
 
-**Direction:** Center stage + edge HUD. The puppy stays the visual anchor; economy stays visible but secondary.
+Two columns only: **main stage (center / left)** + **right pane**. The puppy is the visual anchor; love, money, and shop live in the right pane—no separate HUD strip.
 
-- **Main stage (center, primary column):** Large centered puppy and core interactions (pet, feed, toys, mood feedback). This column gets most of the space.
-- **Secondary pane (right):** Economy and shop together—money, purchases (treats, toys, auto-petters), prices and affordance. Keeps progression readable without crowding the puppy.
-- **Top edge (optional, thin):** Global readouts such as love meter and money if we want at-a-glance HUD without duplicating detail from the right pane.
-
-**Responsive:** On wide layouts, two columns (stage | economy). On narrow viewports, collapse the right pane into a bottom sheet, slide-over, or collapsible “Economy” control so the puppy remains center stage.
+MVP does **not** target mobile or narrow viewports; layout can assume a comfortable desktop width.
 
 ## UI Features
 
@@ -89,3 +89,5 @@ KISS for MVP:
 **Simulation & economy:** KISS. Simple tick/timer rules and a small set of tunable numbers; tune by feel, not heavy modeling.
 
 **Goal:** Validate the idea, not build a long-lived platform.
+
+Implementation details (timers, save shape, store layout, etc.) are left to whoever builds it—this doc sets intent, not prescriptions.
