@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Stub puppy placeholder">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f4e4c1"/>
+      <stop offset="100%" style="stop-color:#d4a574"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="24" fill="#fef3e2"/>
+  <ellipse cx="100" cy="118" rx="72" ry="58" fill="url(#g)" stroke="#8b6914" stroke-width="3"/>
+  <ellipse cx="58" cy="62" rx="28" ry="40" fill="url(#g)" stroke="#8b6914" stroke-width="3" transform="rotate(-18 58 62)"/>
+  <ellipse cx="142" cy="62" rx="28" ry="40" fill="url(#g)" stroke="#8b6914" stroke-width="3" transform="rotate(18 142 62)"/>
+  <ellipse cx="78" cy="108" rx="10" ry="14" fill="#2d2a26"/>
+  <ellipse cx="122" cy="108" rx="10" ry="14" fill="#2d2a26"/>
+  <ellipse cx="100" cy="128" rx="10" ry="8" fill="#4a3f35"/>
+  <path d="M88 142 Q100 152 112 142" fill="none" stroke="#4a3f35" stroke-width="4" stroke-linecap="round"/>
+</svg>
